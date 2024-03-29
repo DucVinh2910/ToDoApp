@@ -1,0 +1,349 @@
+
+void test_getCommandType(int start, int end)
+{
+    //! {"ADD", "EDIT", "SHOW", "DELETE", "QUIT", "INVALID"};
+    char command[10][MAX_LENGTH_COMMAND+1] = 
+    {
+        "Add [Course Intro to Programming] [Room 701-H6] [07:00|01/10/2023-12:00|01/10/2023]\0",
+        "Edit  #2",
+        "Show  #2",
+        "Delete  #2",
+        "    Quit  #2",
+        "Add",
+        " Add ",
+        "A  #2",
+        "Add1  #2",
+        "",
+    };
+
+    enum CommandType result[20] = {ADD, EDIT, SHOW, DELETE, QUIT, ADD, ADD ,INVALID ,INVALID, INVALID , INVALID , INVALID};
+   
+    for(int i = start; i <= end; i++)
+    {
+        printf("Test case %d", i);
+        enum CommandType commandType = getCommandType(command[i - start]);
+        if(result[i-start] != commandType)
+        {
+            printf(" fail\n");
+            printf("    Command              : %s\n", command[i - start]);
+            printf("    code you Command type: %s\n", command_name[commandType]);
+            printf("    exact Command type   : %s\n", command_name[result[i-start]]);
+        }
+        else printf(" pass\n");
+    }
+}
+void test_get__FromAdd(int start, int end)
+{
+    //! {"ADD", "EDIT", "SHOW", "DELETE", "QUIT", "INVALID"};
+    char command[10][MAX_LENGTH_COMMAND+1] = 
+    {
+        "Add [Course Intro to Programming] [Room 701-H6] [07:00|01/10/2023-12:00|01/10/2023]\0",
+        "Edit  [a] [b] [c]",
+        "Show  [a]   [b] [c]",
+        "       Show  [a]   [b]   [c]",
+        "Add [a] [] []",
+        "Add [] [b] []",
+        "Add [] [] [c]",
+        "Add [] [] []",
+        "Add [-] [-] [-]",
+        "Add [k1K , . - : | /] [k] [k]",
+    };
+    char result[20][3][MAX_LENGTH_COMMAND+1] = {
+        {"Course Intro to Programming", "Room 701-H6", "07:00|01/10/2023-12:00|01/10/2023"},
+        {"a", "b", "c"},
+        {"a", "b", "c"},
+        {"a", "b", "c"},
+        {"a", "", ""},
+        {"", "b", ""},
+        {"", "", "c"},
+        {"", "", ""},
+        {"-", "-", "-"},
+        {"k1K , . - : | /", "k", "k"}
+    };
+    char title[MAX_LENGTH_TITLE+1];
+    char description[MAX_LENGTH_DESCRIPTION+1];
+    char time[MAX_LENGTH_TIME+1];
+    for(int i = start; i <= end; i++)
+    {
+        printf("Test case %d", i);
+        getTitleFromAdd(command[i-start], title);
+        getDescriptionFromAdd(command[i-start], description);
+        getTimeFromAdd(command[i-start], time);
+        if(strcmp(title, result[i-start][0]) != 0 || strcmp(description, result[i-start][1]) != 0 || strcmp(time, result[i-start][2]) != 0)
+        {
+            printf(" fail\n");
+            printf("    Command                          : %s\n", command[i - start]);
+            printf("    code you title, description, time: %s , %s, %s\n", title, description, time);
+            printf("    exact title, description, time   : %s , %s, %s\n", result[i-start][0], result[i-start][1], result[i-start][2]);
+        }
+        else printf(" pass\n");
+    }
+}
+void test_check__FromAdd(int start, int end)
+{
+    //! {"ADD", "EDIT", "SHOW", "DELETE", "QUIT", "INVALID"};
+    char command[10][MAX_LENGTH_COMMAND+1] = 
+    {
+        "Add [Course Intro to Programming] [Room 701-H6] [07:00|01/10/2023-12:00|01/10/2023]\0",
+        "Add [aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] [ a ] [07:00|01/11/2023-12:00|01/10/2023]",
+        "Add [aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] [a ] [07:00|02/10/2023-12:00|01/10/2023]",
+        "Add [   a ] [aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] [37:00|01/10/2023-37:00|01/10/2023]",
+        "Add [a    ] [aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] [07:00|37/10/2023-12:00|37/10/2023]",
+        "Add [a ,.-:|/] [a ,.-:|/] [07:00|02/13/2023-12:00|01/10/2023]", 
+        "Add [abcdzAZX1239] [abcdzAZX1239] [07:00|02/00/2023-12:00|01/10/2023]",
+        "Add [+] [*] [12:00|01/10/2023-12:00|01/10/2023]",
+        "Add [!] [=] [12:70|01/10/2023-12:70|01/10/2023]",
+        "Add [] [] [12:00|01/10/2023-12:00|01/10/0023]",
+    };
+    int result[20][3]= {
+        {-1, -1, -1},
+        {-1, 0, 0},
+        {101, 1, 0},
+        {0,-1,  1137},
+        {4,201,  3137},
+        {-1, -1, 4113},
+        {-1, -1, 4100},
+        {0, 0, 0},
+        {0, 0, 2170},
+        {-1, -1, 520023}
+    };
+    char title[MAX_LENGTH_TITLE+1];
+    char description[MAX_LENGTH_DESCRIPTION+1];
+    char time[MAX_LENGTH_TIME+1];
+    for(int i = start; i <= end; i++)
+    {
+        printf("Test case %d", i);
+        getTitleFromAdd(command[i-start], title);
+        getDescriptionFromAdd(command[i-start], description);
+        getTimeFromAdd(command[i-start], time);
+
+        int _checkTitle = checkTitle(title);
+        int _checkDescription = checkDescription(description);
+        int _checkTime = checkTime(time);
+        if(_checkTitle == result[i-start][0] && _checkDescription == result[i-start][1] && _checkTime == result[i-start][2]) printf(" pass\n");
+        else 
+        {
+            printf(" fail\n");
+            printf("    Command                          : %s\n", command[i - start]);
+            printf("    code you check title, description, time: %d , %d, %d\n", _checkTitle, _checkDescription, _checkTime);
+            printf("    exact check title, description, time   : %d , %d, %d\n", result[i-start][0], result[i-start][1], result[i-start][2]);
+        }
+        
+    }    
+}
+//!3.6
+void test_get__FromEdit(int start, int end){
+
+    char command[10][MAX_LENGTH_COMMAND+1] = 
+    {
+        "Edit #5 title:[ ]",
+        "Edit #5 title:[aaaaaaa]",
+        "Edit #5 title:[.       .]",
+        "Edit #4 title:[]",
+        "Edit #100 description:[ccccccccccc]",
+        "Edit #1000 description:[-,a,-=]",
+        "Edit #100 description:[ccccccccccc77777777777777777777777777777777777777777777777777777777777777777777777777777]",
+        "Edit #10000000 time:[07:00|01/10/2023-12:00|01/10/2023]",
+        "Edit #10000000 time:[    xxxx         ]",
+        "Edit #10000000 time:[ .    yyy /]",
+    };
+  
+    char result[10][MAX_LENGTH_COMMAND+1] = {
+        {" "},
+        {"aaaaaaa"},
+        {".       ."},
+        {"\0"},
+        {"ccccccccccc"},
+        {"-,a,-="},
+        {"ccccccccccc77777777777777777777777777777777777777777777777777777777777777777777777777777"},
+        {"07:00|01/10/2023-12:00|01/10/2023"},
+        {"    xxxx         "},
+        {" .    yyy /"}
+    };
+    char title[MAX_LENGTH_TITLE+1];
+    char description[MAX_LENGTH_DESCRIPTION+1];
+    char time[MAX_LENGTH_TIME+1];
+    
+
+    for(int i = start -start; i <= end - start; i++)
+    {  
+        printf("Test case %d", i + start);
+        if(i <= 3) {
+            getTitleFromEdit(command[i], title);
+             if(strcmp(title, result[i]) != 0 )
+        {
+            printf(" fail\n");
+            printf("    Command                          : %s\n", command[i]);
+            printf("    code you title: %s \n", title);
+            printf("    exact title   : %s \n", result[i]);
+        }
+
+        } 
+        else if(i >3 && i <= 6) {
+            
+        getDescriptionFromEdit(command[i], description);
+          if(strcmp(description, result[i]) != 0 )
+        {
+            printf(" fail\n");
+            printf("    Command                          : %s\n", command[i]);
+            printf("    code you description: %s \n", description);
+            printf("    exact description   : %s \n", result[i]);
+        }
+    }
+        else{
+           getTimeFromEdit(command[i], time);
+             if(strcmp(time, result[i]) != 0 )
+        {
+            printf(" fail\n");
+            printf("    Command                          : %s\n", command[i]);
+            printf("    code you time: %s \n", time);
+            printf("    exact time  : %s \n", result[i]);
+        }
+    }       
+        printf(" pass\n");
+    }
+}
+//!3.7
+void test_get__NumFromCommand(int start, int end){
+
+    char command[10][MAX_LENGTH_COMMAND+1] = 
+    {
+        "Edit # title:[ ]",
+        "Edit #- title:[aaaaaaa]",
+        "Edit #-5 title:[.       .]",
+        "Edit #4 title:[]",
+        "Edit #100 description:[ccccccccccc]",
+        "Edit #0 description:[-,a,-=]",
+        "Edit #100 description:[ccccccccccc77777777777777777777777777777777777777777777777777777777777777777777777777777]",
+        "Edit #-100000 time:[07:00|01/10/2023-12:00|01/10/2023]",
+        "Edit #/100000 time:[    xxxx         ]",
+        "Edit #100-000 time:[ .    yyy /]",
+    };
+  
+    int result[20] = {
+        -1,
+        0,
+        0,
+        4,
+        100,
+        0,
+        100,
+        0,
+        0,
+        0
+    };
+    
+
+    for(int i = start -start; i <= end - start; i++)
+    {  
+        printf("Test case %d", i + start);
+      int res = getNumFromCommand(command[i]);
+  
+      if(res != result[i]){
+        printf(" fail\n");
+            printf("    Command                          : %s\n", command[i]);
+            printf("    code you num: %d \n", res);
+            printf("    exact num  : %s \n", result[i]);
+      }      
+       else printf(" pass\n");;
+    }
+    
+}
+//!3.8
+void test_get_FieldFromEdit(int start, int end){
+
+    char command[10][MAX_LENGTH_COMMAND+1] = 
+    {
+        "Edit #5 title:[ ]",
+        "Edit #5 title:[aaaaaaa]",
+        "Edit #5 status:[.       .]",
+        "Edit #4 :[]",
+        "Edit #100 des4cription:[ccccccccccc]",
+        "Edit #1000 description:[-,a,-=]",
+        "Edit #100 description:[ccccccccccc77777777777777777777777777777777777777777777777777777777777777777777777777777]",
+        "Edit #10000000 time:  :[07:00|01/10/2023-12:00|01/10/2023]",
+        "Edit #10000000 .time:[    xxxx         ]",
+        "Edit #10000000      time:[ .    yyy /]",
+    };
+  
+    int result[20] = { 1,1,4,0,0,2,2,3,0,0};
+
+    for(int i = start -start; i <= end - start; i++)
+    {  
+        printf("Test case %d", i + start);
+      int res = getFieldFromEdit(command[i]);
+  
+      if(res != result[i]){
+        printf(" fail\n");
+            printf("    Command                          : %s\n", command[i]);
+            printf("    code you num: %d \n", res);
+            printf("    exact num  : %s \n", result[i]);
+            
+      }      
+       else printf(" pass\n");;
+    }
+}
+   
+
+//!3.9
+void test_getStatusFromEdit(int start, int end)
+{
+    //! {"ADD", "EDIT", "SHOW", "DELETE", "QUIT", "INVALID"};
+    char command[10][MAX_LENGTH_COMMAND+1] = 
+    {
+        "Edit #5 status:[I]\0",
+        "Edit #100 status:[i]\0",
+        "Edit #3 status:[]\0",
+        "Edit #5 status:[A]\0",
+        "Edit #100 status:[a]\0",
+        "Edit #3 status:[d]\0",
+        "Edit #3 status:[D]\0",
+        "Edit #5 status:[A]\0",
+        "Edit #10000 status:[a]\0",
+        "Edit #300000 status:[d]\0",
+        
+        
+    };
+
+    enum Status result[20] = {IN_PROGRESS,IN_PROGRESS, ARCHIVED ,ARCHIVED ,ARCHIVED , DONE, DONE,ARCHIVED ,ARCHIVED, DONE};
+   
+    for(int i = start ; i <= end; i++)
+    {
+        printf("Test case %d", i );
+        enum Status commandType = getStatusFromEdit(command[i - start]);
+        if(result[i-start] != commandType)
+        {
+            printf(" fail\n");
+            printf("    Command              : %s\n", command[i - start]);
+            printf("    code you Command Status: %s\n", command_name[commandType]);
+            printf("    exact Command Status   : %s\n", command_name[result[i-start]]);
+        }
+        else printf(" pass\n");
+    }
+}
+
+void runTodoApp() {
+    //! 3.1
+      test_getCommandType(1, 10);
+
+    //! 3.2
+      test_get__FromAdd(11, 20);
+
+    //! 3.3-5
+     test_check__FromAdd(21, 30);
+    //! 3.6
+     test_get__FromEdit(31, 40);
+    //! 3.7
+     test_get__NumFromCommand(41,50);
+    //!3.8
+    test_get_FieldFromEdit(51, 60);
+    //!3.9
+    test_getStatusFromEdit(61, 70);
+    printf("end game:");
+   
+}
+
+int main() {
+    runTodoApp();
+    return 0;
+}
